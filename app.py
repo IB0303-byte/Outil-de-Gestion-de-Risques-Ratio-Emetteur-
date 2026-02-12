@@ -130,31 +130,7 @@ def load_portfolio(file):
         return None, None
 
 
-if portfolio is not None:
-    
-    # Dictionnaire des actifs nets (À VÉRIFIER DANS TON FICHIER)
-    actif_net_values = {
-        'CFP': 276403573.05,
-        'CCS': 356674412.16,
-        'TIJ': 478502756.69,
-        'CLB': 1704711189.03,
-        'PRV': 708721589.76
-    }
-    
-    # Remplacer 'Fond' par le vrai nom (basé sur le contenu)
-    if 'CFP' in str(portfolio['Description'].iloc[0]):
-        portfolio['Fonds'] = 'CFP'
-    elif 'CCS' in str(portfolio['Description'].iloc[0]):
-        portfolio['Fonds'] = 'CCS'
-    # ... etc
-    
-    # Appliquer l'actif net
-    portfolio['Actif_Net'] = actif_net_values.get(portfolio['Fonds'].iloc[0], 0)
-    
-    # Reconstruire le dictionnaire
-    actif_net_dict = {portfolio['Fonds'].iloc[0]: portfolio['Actif_Net'].iloc[0]}
-    
-    st.success(f"✅ Fonds identifié : {portfolio['Fonds'].iloc[0]}")
+
 # =============================================================================
 # TABLE DES ÉMETTEURS PAR DÉFAUT
 # =============================================================================
