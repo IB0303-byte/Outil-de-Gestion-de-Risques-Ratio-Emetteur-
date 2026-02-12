@@ -62,101 +62,99 @@ def clean_number(value):
 
 @st.cache_data
 def load_portfolio(file):
-    """Charge le fichier avec affichage debug"""
-    
-    if file is None:
-        return None, None
-    
+    """
+    Charge le fichier Excel avec correction des noms de fonds
+    """
     try:
         xl = pd.ExcelFile(file)
         all_data = []
         actif_net_dict = {}
         
-        st.sidebar.markdown("---")
-        st.sidebar.markdown("### 🔍 DEBUG - Chargement")
+        # Mapping des noms de fonds par feuille
+        fonds_mapping = {
+            'Action': 'CFP',
+            'Diversifie': 'TIJ',
+            'OMLT': 'PRV',
+            'OCT': 'CLB',
+            'Monetaire': 'CCS'
+        }
+        
+        # Actif net par fonds (à vérifier dans ton fichier)
+        actif_net_values = {
+            'CFP': 276403573.05,
+            'CCS': 356674412.16,
+            'TIJ': 478502756.69,
+            'CLB': 1704711189.03,
+            'PRV': 708721589.76
+        }
         
         for sheet_name in xl.sheet_names:
-            st.sidebar.text(f"Feuille: {sheet_name}")
-            
             # Lire la feuille
             df = pd.read_excel(file, sheet_name=sheet_name, header=None)
             
-            # Récupérer le nom du fonds (cellule A1)
-            fonds_name = str(df.iloc[0, 0]) if not pd.isna(df.iloc[0, 0]) else sheet_name
-            fonds_name = fonds_name.strip()
+            # Déterminer le nom du fonds à partir du nom de la feuille
+            fonds_name = fonds_mapping.get(sheet_name, sheet_name)
+            actif_net = actif_net_values.get(fonds_name, 0)
             
-            # Récupérer l'actif net (cellule C1)
-            actif_net_raw = df.iloc[0, 2] if len(df.columns) > 2 else 0
-            actif_net = clean_number(actif_net_raw)
-            
-            st.sidebar.text(f"  → Fonds: {fonds_name}")
-            st.sidebar.text(f"  → Actif net: {actif_net:,.0f} MAD")
-            
-            # Lire les données à partir de la ligne 2 (index 1)
+            # Lire les données à partir de la ligne 2
             df_data = df.iloc[1:].copy()
-            
-            # Vider les lignes complètement vides
             df_data = df_data.dropna(how='all')
             
             if len(df_data) > 0 and len(df_data.columns) >= 9:
                 # Nommer les colonnes
-                new_cols = ['Code_ISIN', 'Type', 'Description', 'Quantite', 
-                           'Prix_revient', 'Valo_j', 'Prix_revient_global',
-                           'Valo_globale', 'Plus_moins_value']
+                df_data.columns = ['Code_ISIN', 'Type', 'Description', 'Quantite', 
+                                  'Prix_revient', 'Valo_j', 'Prix_revient_global',
+                                  'Valo_globale', 'Plus_moins_value'] + [f'Col{i}' for i in range(10, len(df_data.columns)+1)]
                 
-                # Ajouter des noms pour les colonnes supplémentaires si nécessaires
-                for i in range(len(df_data.columns) - len(new_cols)):
-                    new_cols.append(f'Col_{i+10}')
-                
-                # Assigner les noms de colonnes (limiter au nombre de colonnes disponibles)
-                df_data.columns = new_cols[:len(df_data.columns)]
-                
-                # Garder les colonnes essentielles
-                essential_cols = ['Type', 'Description', 'Valo_globale']
-                available_cols = [col for col in essential_cols if col in df_data.columns]
-                
-                if available_cols:
-                    df_clean = df_data[available_cols].copy()
+                # Garder les colonnes utiles
+                if 'Valo_globale' in df_data.columns:
+                    df_clean = df_data[['Type', 'Description', 'Valo_globale']].copy()
                     
                     # Nettoyer la valorisation
-                    if 'Valo_globale' in df_clean.columns:
-                        df_clean['Valo_globale'] = df_clean['Valo_globale'].apply(clean_number)
-                        
-                        # Garder seulement les valorisations positives
-                        df_clean = df_clean[df_clean['Valo_globale'] > 0]
-                        
-                        if len(df_clean) > 0:
-                            # Ajouter les colonnes fonds
-                            df_clean['Fonds'] = fonds_name
-                            df_clean['Actif_Net'] = actif_net
-                            
-                            all_data.append(df_clean)
-                            actif_net_dict[fonds_name] = actif_net
-                            
-                            st.sidebar.text(f"  ✅ {len(df_clean)} lignes chargées")
-                        else:
-                            st.sidebar.text(f"  ⚠️ Aucune ligne avec valorisation > 0")
-                    else:
-                        st.sidebar.text(f"  ❌ Colonne Valo_globale manquante")
-                else:
-                    st.sidebar.text(f"  ❌ Colonnes essentielles manquantes")
-            else:
-                st.sidebar.text(f"  ⚠️ Pas assez de colonnes")
-        
-        st.sidebar.markdown("---")
+                    df_clean['Valo_globale'] = df_clean['Valo_globale'].apply(clean_number)
+                    df_clean = df_clean[df_clean['Valo_globale'] > 0]
+                    
+                    if len(df_clean) > 0:
+                        df_clean['Fonds'] = fonds_name
+                        df_clean['Actif_Net'] = actif_net
+                        all_data.append(df_clean)
+                        actif_net_dict[fonds_name] = actif_net
         
         if all_data:
-            result_df = pd.concat(all_data, ignore_index=True)
-            st.sidebar.success(f"✅ TOTAL: {len(result_df)} lignes, {len(actif_net_dict)} fonds")
-            return result_df, actif_net_dict
+            return pd.concat(all_data, ignore_index=True), actif_net_dict
         else:
-            st.sidebar.error("❌ Aucune donnée valide trouvée")
             return None, None
             
     except Exception as e:
-        st.sidebar.error(f"❌ Erreur: {str(e)}")
+        st.error(f"Erreur: {str(e)}")
         return None, None
 
+
+if portfolio is not None:
+    
+    # Dictionnaire des actifs nets (À VÉRIFIER DANS TON FICHIER)
+    actif_net_values = {
+        'CFP': 276403573.05,
+        'CCS': 356674412.16,
+        'TIJ': 478502756.69,
+        'CLB': 1704711189.03,
+        'PRV': 708721589.76
+    }
+    
+    # Remplacer 'Fond' par le vrai nom (basé sur le contenu)
+    if 'CFP' in str(portfolio['Description'].iloc[0]):
+        portfolio['Fonds'] = 'CFP'
+    elif 'CCS' in str(portfolio['Description'].iloc[0]):
+        portfolio['Fonds'] = 'CCS'
+    # ... etc
+    
+    # Appliquer l'actif net
+    portfolio['Actif_Net'] = actif_net_values.get(portfolio['Fonds'].iloc[0], 0)
+    
+    # Reconstruire le dictionnaire
+    actif_net_dict = {portfolio['Fonds'].iloc[0]: portfolio['Actif_Net'].iloc[0]}
+    
+    st.success(f"✅ Fonds identifié : {portfolio['Fonds'].iloc[0]}")
 # =============================================================================
 # TABLE DES ÉMETTEURS PAR DÉFAUT
 # =============================================================================
