@@ -789,7 +789,7 @@ else:
 
 st.markdown("""
 <div class="footer">
-    <p>Développé Par Thierno Ibrahima pour leContrôle des ratios émetteurs - CDVM Circulaire n°01-09</p>
+    <p>Développé Par Thierno Ibrahima pour le Contrôle des ratios émetteurs - CDVM Circulaire n°01-09</p>
     <p style="font-size: 0.9rem;"> - Gestion des risques</p>
 </div>
 """, unsafe_allow_html=True)
