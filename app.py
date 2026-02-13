@@ -24,31 +24,142 @@ st.set_page_config(
 )
 
 # =============================================================================
-# CSS AMÉLIORÉ
+# GESTION SESSION - PAGE D'ACCUEIL
+# =============================================================================
+if 'app_started' not in st.session_state:
+    st.session_state.app_started = False
+
+# =============================================================================
+# CSS AMÉLIORÉ - STYLE SOMBRE ÉLÉGANT
 # =============================================================================
 
 st.markdown("""
 <style>
     /* Import Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
     
     /* Reset et Police globale */
     * {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     
+    /* Background sombre élégant */
     .stApp {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #0d0d0d;
     }
     
-    /* Container principal blanc */
+    /* Page d'accueil sombre */
+    .landing-page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 2rem;
+        background: radial-gradient(ellipse at center, #1a1a1a 0%, #0d0d0d 70%);
+    }
+    
+    .logo-box {
+        border: 3px solid #dc143c;
+        border-radius: 20px;
+        padding: 2rem 5rem;
+        margin-bottom: 4rem;
+        background: rgba(0, 0, 0, 0.3);
+        animation: glow 3s ease-in-out infinite alternate;
+    }
+    
+    @keyframes glow {
+        from {
+            box-shadow: 0 0 20px rgba(220, 20, 60, 0.4), inset 0 0 20px rgba(220, 20, 60, 0.1);
+        }
+        to {
+            box-shadow: 0 0 50px rgba(220, 20, 60, 0.7), inset 0 0 30px rgba(220, 20, 60, 0.2);
+        }
+    }
+    
+    .logo-box h1 {
+        color: #dc143c;
+        font-size: 4.5rem;
+        font-weight: 900;
+        margin: 0;
+        letter-spacing: 12px;
+        text-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
+    }
+    
+    .main-title {
+        font-size: 4rem;
+        font-weight: 700;
+        color: #dc143c;
+        margin: 2rem 0 1rem 0;
+        line-height: 1.3;
+        text-shadow: 0 0 40px rgba(220, 20, 60, 0.6);
+    }
+    
+    .subtitle {
+        font-size: 1.3rem;
+        color: #999999;
+        margin: 2rem 0 3rem 0;
+        font-weight: 400;
+        letter-spacing: 1px;
+    }
+    
+    .enter-button {
+        background-color: transparent;
+        border: 2px solid #dc143c;
+        color: #dc143c;
+        padding: 1rem 3rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        cursor: pointer;
+        margin-top: 2rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .enter-button:hover {
+        background-color: #dc143c;
+        color: white;
+        box-shadow: 0 0 30px rgba(220, 20, 60, 0.6);
+        transform: scale(1.05);
+    }
+    
+    /* Masquer la sidebar sur la landing page */
+    .landing-page-active [data-testid="stSidebar"] {
+        display: none;
+    }
+    
+    /* Style du bouton Streamlit pour la landing page */
+    .landing-page button {
+        background-color: transparent !important;
+        border: 2px solid #dc143c !important;
+        color: #dc143c !important;
+        padding: 1rem 3rem !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        border-radius: 50px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 2px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .landing-page button:hover {
+        background-color: #dc143c !important;
+        color: white !important;
+        box-shadow: 0 0 30px rgba(220, 20, 60, 0.6) !important;
+        transform: scale(1.05) !important;
+    }
+    
+    /* Container principal pour l'app */
     .main-container {
-        background: white;
+        background: rgba(255, 255, 255, 0.98);
         border-radius: 20px;
         padding: 3rem;
         margin: 2rem auto;
         max-width: 1400px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
     
     /* En-tête élégant */
@@ -587,6 +698,42 @@ def check_45_percent_rule(ratios_df, portfolio_df, actif_net_dict, seuil=0.45):
 # INTERFACE PRINCIPALE
 # =============================================================================
 
+# PAGE D'ACCUEIL (Landing Page)
+if not st.session_state.app_started:
+    st.markdown("""
+    <div class="landing-page">
+        <div class="logo-box">
+            <h1>CFG BANK</h1>
+        </div>
+        
+        <div class="main-title">
+            Contrôle des ratios<br>émetteurs OPCVM
+        </div>
+        
+        <div class="subtitle">
+            CFG Bank • Contrôle Interne • By Thierno Ibrahima Diallo
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Bouton centré pour entrer dans l'application
+    col1, col2, col3 = st.columns([2, 2, 2])
+    with col2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("🔓 Application Interne", key="enter_app", use_container_width=True):
+            st.session_state.app_started = True
+            st.rerun()
+    
+    # Info en bas
+    st.markdown("""
+    <div style="position: fixed; bottom: 20px; right: 20px; color: #666; font-size: 0.9rem;">
+        <span style="cursor: pointer;">⚙️ Manage app</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.stop()
+
+# APPLICATION PRINCIPALE (après le clic)
 # Container principal
 st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
@@ -604,6 +751,14 @@ st.markdown("""
 # =============================================================================
 
 with st.sidebar:
+    # Bouton retour à l'accueil
+    st.markdown("### 🏠 Navigation")
+    if st.button("← Retour à l'accueil", use_container_width=True):
+        st.session_state.app_started = False
+        st.rerun()
+    
+    st.markdown("---")
+    
     st.markdown("### ⚙️ Paramètres de Contrôle")
     
     # Plafonds
