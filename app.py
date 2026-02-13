@@ -1258,7 +1258,7 @@ else:
         ### 📞 Support
         
         En cas de problème, contactez:
-        **Le responsable** - Contrôle Interne CFG Bank
+        **Thierno Ibrahima Diallo** - Contrôle Interne CFG Bank
         """)
 
 st.markdown('</div>', unsafe_allow_html=True)
