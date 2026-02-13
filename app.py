@@ -1,7 +1,7 @@
 """
 PROTOTYPE - Contrôle des ratios émetteurs OPCVM
 CDVM Circulaire n°01-09 - Article 6
-Version avec Interface Améliorée
+Version Premium Design
 """
 
 import streamlit as st
@@ -18,7 +18,7 @@ from datetime import datetime
 # =============================================================================
 st.set_page_config(
     page_title="Contrôle Émetteurs OPCVM",
-    page_icon="📊",
+    page_icon="🏦",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -30,338 +30,461 @@ if 'app_started' not in st.session_state:
     st.session_state.app_started = False
 
 # =============================================================================
-# CSS AMÉLIORÉ - STYLE SOMBRE ÉLÉGANT
+# CSS PREMIUM DESIGN
 # =============================================================================
 
 st.markdown("""
 <style>
     /* Import Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
     
     /* Reset et Police globale */
     * {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: 'Poppins', sans-serif;
     }
     
-    /* Background sombre élégant */
-    .stApp {
-        background: #0d0d0d;
-    }
-    
-    /* Page d'accueil sombre */
+    /* ===== PAGE D'ACCUEIL ===== */
     .landing-page {
         min-height: 100vh;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        text-align: center;
+        background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
         padding: 2rem;
-        background: radial-gradient(ellipse at center, #1a1a1a 0%, #0d0d0d 70%);
     }
     
-    .logo-box {
-        border: 3px solid #dc143c;
-        border-radius: 20px;
-        padding: 2rem 5rem;
-        margin-bottom: 4rem;
-        background: rgba(0, 0, 0, 0.3);
-        animation: glow 3s ease-in-out infinite alternate;
+    .hero-container {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 30px;
+        padding: 4rem 3rem;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        max-width: 900px;
+        text-align: center;
     }
     
-    @keyframes glow {
-        from {
-            box-shadow: 0 0 20px rgba(220, 20, 60, 0.4), inset 0 0 20px rgba(220, 20, 60, 0.1);
-        }
-        to {
-            box-shadow: 0 0 50px rgba(220, 20, 60, 0.7), inset 0 0 30px rgba(220, 20, 60, 0.2);
-        }
+    .logo-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #e63946 0%, #f72d42 100%);
+        padding: 1.2rem 3.5rem;
+        border-radius: 15px;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 40px rgba(230, 57, 70, 0.4);
+        animation: float 3s ease-in-out infinite;
     }
     
-    .logo-box h1 {
-        color: #dc143c;
-        font-size: 4.5rem;
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .logo-badge h1 {
+        color: white;
+        font-size: 3.2rem;
         font-weight: 900;
         margin: 0;
-        letter-spacing: 12px;
-        text-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
+        letter-spacing: 6px;
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
     
-    .main-title {
-        font-size: 4rem;
-        font-weight: 700;
-        color: #dc143c;
-        margin: 2rem 0 1rem 0;
+    .hero-title {
+        font-size: 3.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 2rem 0 1.5rem 0;
         line-height: 1.3;
-        text-shadow: 0 0 40px rgba(220, 20, 60, 0.6);
     }
     
-    .subtitle {
-        font-size: 1.3rem;
-        color: #999999;
-        margin: 2rem 0 3rem 0;
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: #a0a0a0;
         font-weight: 400;
-        letter-spacing: 1px;
+        margin: 1.5rem 0 3rem 0;
+        line-height: 1.6;
     }
     
-    .enter-button {
-        background-color: transparent;
-        border: 2px solid #dc143c;
-        color: #dc143c;
-        padding: 1rem 3rem;
-        font-size: 1.1rem;
+    .hero-badge {
+        display: inline-block;
+        background: rgba(230, 57, 70, 0.15);
+        color: #e63946;
+        padding: 0.6rem 1.5rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
         font-weight: 600;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(230, 57, 70, 0.3);
+    }
+    
+    /* Bouton d'entrée stylisé */
+    .stButton > button {
+        background: linear-gradient(135deg, #e63946 0%, #f72d42 100%);
+        color: white;
+        border: none;
+        padding: 1.2rem 3.5rem;
         border-radius: 50px;
-        cursor: pointer;
-        margin-top: 2rem;
-        transition: all 0.3s ease;
+        font-weight: 600;
+        font-size: 1.15rem;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 30px rgba(230, 57, 70, 0.4);
         text-transform: uppercase;
         letter-spacing: 2px;
     }
     
-    .enter-button:hover {
-        background-color: #dc143c;
-        color: white;
-        box-shadow: 0 0 30px rgba(220, 20, 60, 0.6);
-        transform: scale(1.05);
+    .stButton > button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(230, 57, 70, 0.6);
+        background: linear-gradient(135deg, #f72d42 0%, #e63946 100%);
     }
     
-    /* Masquer la sidebar sur la landing page */
-    .landing-page-active [data-testid="stSidebar"] {
-        display: none;
+    /* ===== APPLICATION PRINCIPALE ===== */
+    .stApp {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
     }
     
-    /* Style du bouton Streamlit pour la landing page */
-    .landing-page button {
-        background-color: transparent !important;
-        border: 2px solid #dc143c !important;
-        color: #dc143c !important;
-        padding: 1rem 3rem !important;
-        font-size: 1.1rem !important;
-        font-weight: 600 !important;
-        border-radius: 50px !important;
-        text-transform: uppercase !important;
-        letter-spacing: 2px !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .landing-page button:hover {
-        background-color: #dc143c !important;
-        color: white !important;
-        box-shadow: 0 0 30px rgba(220, 20, 60, 0.6) !important;
-        transform: scale(1.05) !important;
-    }
-    
-    /* Container principal pour l'app */
     .main-container {
-        background: rgba(255, 255, 255, 0.98);
+        background: white;
+        border-radius: 25px;
+        padding: 2.5rem;
+        margin: 1.5rem auto;
+        max-width: 1600px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* En-tête moderne */
+    .app-header {
+        background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+        padding: 2.5rem;
         border-radius: 20px;
-        padding: 3rem;
-        margin: 2rem auto;
-        max-width: 1400px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        margin-bottom: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     }
     
-    /* En-tête élégant */
-    .elegant-header {
-        text-align: center;
-        margin-bottom: 3rem;
-        padding-bottom: 2rem;
-        border-bottom: 2px solid #f0f0f0;
-    }
-    
-    .elegant-header h1 {
+    .app-header h1 {
+        color: white;
         font-size: 2.5rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin-bottom: 0.5rem;
+        font-weight: 800;
+        margin: 0 0 0.8rem 0;
         letter-spacing: -0.5px;
     }
     
-    .elegant-header .subtitle {
-        font-size: 0.95rem;
-        color: #666;
+    .app-header .subtitle {
+        color: #a0a0a0;
+        font-size: 1.05rem;
         font-weight: 400;
-        margin-top: 1rem;
+        margin: 0.5rem 0 0 0;
     }
     
-    /* Cartes métriques modernes */
-    .modern-metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem 1.5rem;
-        border-radius: 15px;
+    .badge-red {
+        display: inline-block;
+        background: linear-gradient(135deg, #e63946 0%, #f72d42 100%);
         color: white;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        margin-bottom: 1rem;
-    }
-    
-    .modern-metric-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
-    }
-    
-    .modern-metric-card h4 {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
         font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 1rem;
+    }
+    
+    /* Cartes métriques ultra-modernes */
+    .metric-card {
+        background: white;
+        border-radius: 18px;
+        padding: 2rem 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #e63946;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+    }
+    
+    .metric-card h4 {
+        color: #6c757d;
+        font-size: 0.9rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1px;
         margin: 0 0 1rem 0;
-        opacity: 0.9;
     }
     
-    .modern-metric-card .value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0;
+    .metric-card .value {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #1e1e2e;
         line-height: 1;
+        margin-bottom: 0.5rem;
     }
     
-    .modern-metric-card .subvalue {
-        font-size: 0.9rem;
-        opacity: 0.8;
-        margin-top: 0.5rem;
+    .metric-card .subvalue {
+        color: #9ca3af;
+        font-size: 0.95rem;
+        font-weight: 500;
     }
     
-    /* Carte verte pour conformes */
+    /* Variantes de couleurs */
     .metric-success {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border-left-color: #10b981;
+        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
     }
     
-    /* Carte rouge pour non-conformes */
+    .metric-success .value {
+        color: #10b981;
+    }
+    
     .metric-danger {
-        background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        border-left-color: #ef4444;
+        background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
     }
     
-    /* Carte bleu clair */
+    .metric-danger .value {
+        color: #ef4444;
+    }
+    
     .metric-info {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border-left-color: #3b82f6;
+        background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
     }
     
-    /* Sections */
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin: 2rem 0 1rem 0;
-        padding-bottom: 0.5rem;
-        border-bottom: 3px solid #667eea;
-        display: inline-block;
+    .metric-info .value {
+        color: #3b82f6;
     }
     
-    /* Tableaux */
-    .dataframe {
-        border: none !important;
-        border-radius: 10px;
-        overflow: hidden;
+    .metric-warning {
+        border-left-color: #f59e0b;
+        background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
     }
     
-    .dataframe thead tr th {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        color: white !important;
-        font-weight: 600 !important;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
-        padding: 1rem !important;
+    .metric-warning .value {
+        color: #f59e0b;
     }
     
-    .dataframe tbody tr:hover {
-        background-color: #f8f9ff !important;
-    }
-    
-    /* Boutons */
-    .stButton > button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-    }
-    
-    /* Onglets */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 2rem;
+    /* Section titles */
+    .section-header {
+        margin: 2.5rem 0 1.5rem 0;
+        padding-bottom: 1rem;
         border-bottom: 2px solid #f0f0f0;
     }
     
+    .section-header h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1e1e2e;
+        margin: 0;
+        display: inline-block;
+    }
+    
+    .section-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+        vertical-align: middle;
+    }
+    
+    /* Tableaux élégants */
+    .dataframe {
+        border: none !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    .dataframe thead tr th {
+        background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        font-size: 0.85rem !important;
+        letter-spacing: 0.5px !important;
+        padding: 1.2rem 1rem !important;
+        border: none !important;
+    }
+    
+    .dataframe tbody tr {
+        border-bottom: 1px solid #f0f0f0 !important;
+    }
+    
+    .dataframe tbody tr:hover {
+        background-color: #f8f9fa !important;
+        transition: all 0.2s ease;
+    }
+    
+    .dataframe tbody td {
+        padding: 1rem !important;
+        color: #374151 !important;
+        font-size: 0.95rem !important;
+    }
+    
+    /* Onglets stylisés */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1rem;
+        background: transparent;
+        border-bottom: 2px solid #e5e7eb;
+        padding: 0 0 0 0;
+    }
+    
     .stTabs [data-baseweb="tab"] {
+        height: auto;
         padding: 1rem 2rem;
+        background: transparent;
+        border-radius: 12px 12px 0 0;
+        color: #6b7280;
         font-weight: 600;
-        color: #666;
-        border-radius: 10px 10px 0 0;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background: #f9fafb;
+        color: #1e1e2e;
     }
     
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
         color: white !important;
     }
     
-    /* Sidebar */
-    .css-1d391kg, [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    /* Sidebar élégante */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1e1e2e 0%, #2d2d44 100%);
+        padding: 2rem 1rem;
     }
     
-    .css-1d391kg .stMarkdown, [data-testid="stSidebar"] .stMarkdown {
-        color: white;
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] h4,
+    [data-testid="stSidebar"] .stMarkdown {
+        color: white !important;
     }
     
-    /* Alerts */
+    [data-testid="stSidebar"] label {
+        color: #d1d5db !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Alerts élégantes */
     .stAlert {
-        border-radius: 10px;
-        border-left: 4px solid;
+        border-radius: 12px;
+        border: none;
+        padding: 1.2rem 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
     
     /* Expander */
     .streamlit-expanderHeader {
-        background-color: #f8f9ff;
-        border-radius: 10px;
+        background: #f9fafb;
+        border-radius: 12px;
         font-weight: 600;
+        color: #1e1e2e;
+        padding: 1rem 1.5rem;
     }
     
-    /* Upload box */
-    .stFileUploader {
-        background: #f8f9ff;
-        border: 2px dashed #667eea;
+    .streamlit-expanderHeader:hover {
+        background: #f3f4f6;
+    }
+    
+    /* File uploader */
+    [data-testid="stFileUploader"] {
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        border: 2px dashed #d1d5db;
         border-radius: 15px;
         padding: 2rem;
-    }
-    
-    /* Metrics fonds */
-    .fund-metric {
-        background: white;
-        border: 2px solid #667eea;
-        border-radius: 10px;
-        padding: 1rem;
-        text-align: center;
         transition: all 0.3s ease;
     }
     
-    .fund-metric:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    [data-testid="stFileUploader"]:hover {
+        border-color: #e63946;
+        background: white;
     }
     
-    .fund-metric .fund-name {
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #667eea;
-        margin-bottom: 0.5rem;
+    /* Cartes de fonds */
+    .fund-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border: 2px solid #e5e7eb;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
     
-    .fund-metric .fund-value {
-        font-size: 0.9rem;
-        color: #666;
+    .fund-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: #e63946;
+    }
+    
+    .fund-card .fund-name {
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: #1e1e2e;
+        margin-bottom: 0.8rem;
+        letter-spacing: 1px;
+    }
+    
+    .fund-card .fund-value {
+        font-size: 1.05rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+    
+    /* Progress bars */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, #e63946 0%, #f72d42 100%);
+    }
+    
+    /* Inputs stylisés */
+    .stNumberInput > div > div > input,
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {
+        border-radius: 10px;
+        border: 2px solid #e5e7eb;
+        padding: 0.8rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stNumberInput > div > div > input:focus,
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: #e63946;
+        box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+    }
+    
+    /* Scrollbar personnalisée */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #e63946 0%, #f72d42 100%);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #d62839;
+    }
+    
+    /* Animation de chargement */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    .loading {
+        animation: pulse 2s ease-in-out infinite;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -379,12 +502,11 @@ def clean_number(value):
     if isinstance(value, (int, float)):
         return float(value)
     if isinstance(value, str):
-        # Nettoyage agressif
         value = value.strip()
         value = value.replace(' ', '')
         value = value.replace(',', '')
-        value = value.replace(' ', '')  # Espace insécable
-        value = value.replace('\xa0', '')  # Espace insécable HTML
+        value = value.replace(' ', '')
+        value = value.replace('\xa0', '')
         value = value.replace('\t', '')
         value = value.replace('\n', '')
         if value == '' or value == '-' or value == 'nan':
@@ -392,7 +514,6 @@ def clean_number(value):
         try:
             return float(value)
         except ValueError:
-            # Essayer de garder seulement les chiffres et le point
             value = re.sub(r'[^\d.-]', '', value)
             try:
                 return float(value) if value else 0.0
@@ -401,20 +522,17 @@ def clean_number(value):
     return 0.0
 
 # =============================================================================
-# FONCTION DE CHARGEMENT DEBUG
+# FONCTION DE CHARGEMENT
 # =============================================================================
 
 @st.cache_data
 def load_portfolio(file):
-    """
-    Charge le fichier Excel avec correction des noms de fonds
-    """
+    """Charge le fichier Excel avec correction des noms de fonds"""
     try:
         xl = pd.ExcelFile(file)
         all_data = []
         actif_net_dict = {}
         
-        # Mapping des noms de fonds par feuille
         fonds_mapping = {
             'Action': 'CFP',
             'Diversifie': 'TIJ',
@@ -423,7 +541,6 @@ def load_portfolio(file):
             'Monetaire': 'CCS'
         }
         
-        # Actif net par fonds (à vérifier dans ton fichier)
         actif_net_values = {
             'CFP': 276403573.05,
             'CCS': 356674412.16,
@@ -433,28 +550,20 @@ def load_portfolio(file):
         }
         
         for sheet_name in xl.sheet_names:
-            # Lire la feuille
             df = pd.read_excel(file, sheet_name=sheet_name, header=None)
-            
-            # Déterminer le nom du fonds à partir du nom de la feuille
             fonds_name = fonds_mapping.get(sheet_name, sheet_name)
             actif_net = actif_net_values.get(fonds_name, 0)
             
-            # Lire les données à partir de la ligne 2
             df_data = df.iloc[1:].copy()
             df_data = df_data.dropna(how='all')
             
             if len(df_data) > 0 and len(df_data.columns) >= 9:
-                # Nommer les colonnes
                 df_data.columns = ['Code_ISIN', 'Type', 'Description', 'Quantite', 
                                   'Prix_revient', 'Valo_j', 'Prix_revient_global',
                                   'Valo_globale', 'Plus_moins_value'] + [f'Col{i}' for i in range(10, len(df_data.columns)+1)]
                 
-                # Garder les colonnes utiles
                 if 'Valo_globale' in df_data.columns:
                     df_clean = df_data[['Type', 'Description', 'Valo_globale']].copy()
-                    
-                    # Nettoyer la valorisation
                     df_clean['Valo_globale'] = df_clean['Valo_globale'].apply(clean_number)
                     df_clean = df_clean[df_clean['Valo_globale'] > 0]
                     
@@ -474,13 +583,12 @@ def load_portfolio(file):
         return None, None
 
 # =============================================================================
-# TABLE DES ÉMETTEURS PAR DÉFAUT
+# TABLE DES ÉMETTEURS
 # =============================================================================
 
 @st.cache_data
 def create_default_issuer_table():
     """Table de correspondance émetteurs"""
-    
     data = {
         'mot_cle': [
             'ATW', 'ATTIJARI', 'OBLATW', 'CD ATW',
@@ -488,19 +596,14 @@ def create_default_issuer_table():
             'BCP', 'OBLBCP',
             'IAM', 'ITISSALAT',
             'BOA', 'BANK OF AFRICA',
-            'CDM',
-            'CIH',
-            'MUTANDIS',
+            'CDM', 'CIH', 'MUTANDIS',
             'LBV', 'LABEL VIE',
             'COSUMAR', 'CSR',
             'ONCF', 'OBLONCF',
             'CAM', 'OBLCAM',
             'RCI', 'BSFRCI',
-            'BDT',
-            'CFG',
-            'IRGAM',
-            'PRS', 'INSTICASH',
-            'TWIN'
+            'BDT', 'CFG', 'IRGAM',
+            'PRS', 'INSTICASH', 'TWIN'
         ],
         'emetteur': [
             'ATW', 'ATW', 'ATW', 'ATW',
@@ -508,19 +611,14 @@ def create_default_issuer_table():
             'BCP', 'BCP',
             'IAM', 'IAM',
             'BOA', 'BOA',
-            'CDM',
-            'CIH',
-            'MUTANDIS',
+            'CDM', 'CIH', 'MUTANDIS',
             'LBV', 'LBV',
             'COSUMAR', 'COSUMAR',
             'ONCF', 'ONCF',
             'CAM', 'CAM',
             'RCI', 'RCI',
-            'État marocain',
-            'CFG',
-            'IRGAM',
-            'CFG', 'CFG',
-            'TWIN'
+            'État marocain', 'CFG', 'IRGAM',
+            'CFG', 'CFG', 'TWIN'
         ],
         'type': [
             'privé', 'privé', 'privé', 'privé',
@@ -528,19 +626,14 @@ def create_default_issuer_table():
             'privé', 'privé',
             'privé', 'privé',
             'privé', 'privé',
-            'privé',
-            'privé',
-            'privé',
+            'privé', 'privé', 'privé',
             'privé', 'privé',
             'privé', 'privé',
             'privé', 'privé',
             'privé', 'privé',
             'privé', 'privé',
-            'public',
-            'privé',
-            'privé',
-            'privé', 'privé',
-            'privé'
+            'public', 'privé', 'privé',
+            'privé', 'privé', 'privé'
         ]
     }
     return pd.DataFrame(data)
@@ -551,17 +644,14 @@ def create_default_issuer_table():
 
 def identify_issuer(description, issuer_table):
     """Identifie l'émetteur à partir de la description"""
-    
     if pd.isna(description):
         return 'Inconnu', 'inconnu'
     
     desc = str(description).upper()
     
-    # Cas spécial BDT
     if 'BDT' in desc:
         return 'État marocain', 'public'
     
-    # Recherche dans la table
     for _, row in issuer_table.iterrows():
         mot_cle = str(row['mot_cle']).upper()
         if mot_cle in desc:
@@ -571,13 +661,10 @@ def identify_issuer(description, issuer_table):
 
 def add_issuers(df, issuer_table):
     """Ajoute les colonnes émetteur et type"""
-    
     if df is None or len(df) == 0:
         return df
     
     result = df.copy()
-    
-    # Appliquer l'identification
     issuers = result['Description'].apply(
         lambda x: identify_issuer(x, issuer_table)
     )
@@ -588,12 +675,11 @@ def add_issuers(df, issuer_table):
     return result
 
 # =============================================================================
-# CALCUL DES RATIOS (VERSION ROBUSTE)
+# CALCUL DES RATIOS
 # =============================================================================
 
 def calculate_issuer_ratios(df, actif_net_dict, params):
     """Calcule les ratios par fonds et émetteur"""
-    
     if df is None or len(df) == 0 or not actif_net_dict:
         return pd.DataFrame()
     
@@ -607,7 +693,6 @@ def calculate_issuer_ratios(df, actif_net_dict, params):
         
         fonds_data = df[df['Fonds'] == fonds]
         
-        # Grouper par émetteur
         grouped = fonds_data.groupby('Emetteur').agg({
             'Valo_globale': 'sum',
             'Type_Emetteur': 'first'
@@ -617,11 +702,9 @@ def calculate_issuer_ratios(df, actif_net_dict, params):
             total = row['Valo_globale']
             ratio = total / actif_net
             
-            # Déterminer le plafond
             if row['Emetteur'] == 'État marocain' or row['Type_Emetteur'] == 'public':
                 plafond = params.get('plafond_etat', 1.0)
             else:
-                # Vérifier si c'est une action
                 emetteur_data = fonds_data[fonds_data['Emetteur'] == row['Emetteur']]
                 is_action = any('ACTION' in str(t).upper() for t in emetteur_data['Type'])
                 
@@ -630,7 +713,6 @@ def calculate_issuer_ratios(df, actif_net_dict, params):
                 else:
                     plafond = params.get('plafond_standard', 0.10)
             
-            # Conformité (avec tolérance)
             conformite = '✅' if ratio <= plafond + 0.0001 else '❌'
             ecart = (ratio - plafond) * 100
             
@@ -656,7 +738,6 @@ def calculate_issuer_ratios(df, actif_net_dict, params):
 
 def check_45_percent_rule(ratios_df, portfolio_df, actif_net_dict, seuil=0.45):
     """Vérifie la règle des 45% pour les actions"""
-    
     if ratios_df is None or len(ratios_df) == 0 or 'Fonds' not in ratios_df.columns:
         return pd.DataFrame()
     
@@ -668,10 +749,8 @@ def check_45_percent_rule(ratios_df, portfolio_df, actif_net_dict, seuil=0.45):
         if actif_net <= 0:
             continue
         
-        # Filtrer les ratios du fonds
         fonds_ratios = ratios_df[ratios_df['Fonds'] == fonds]
         
-        # Garder seulement les émetteurs avec ratio > 10% et non-État
         emetteurs_sup_10 = fonds_ratios[
             (fonds_ratios['Ratio'] > 0.10) & 
             (fonds_ratios['Emetteur'] != 'État marocain')
@@ -695,172 +774,158 @@ def check_45_percent_rule(ratios_df, portfolio_df, actif_net_dict, seuil=0.45):
     return pd.DataFrame(results)
 
 # =============================================================================
-# INTERFACE PRINCIPALE
+# PAGE D'ACCUEIL
 # =============================================================================
 
-# PAGE D'ACCUEIL (Landing Page)
 if not st.session_state.app_started:
     st.markdown("""
     <div class="landing-page">
-        <div class="logo-box">
-            <h1>CFG BANK</h1>
-        </div>
-        
-        <div class="main-title">
-            Contrôle des ratios<br>émetteurs OPCVM
-        </div>
-        
-        <div class="subtitle">
-            CFG Bank • Contrôle Interne • By Thierno Ibrahima Diallo
+        <div class="hero-container">
+            <div class="hero-badge">
+                🔒 Application Sécurisée
+            </div>
+            
+            <div class="logo-badge">
+                <h1>CFG BANK</h1>
+            </div>
+            
+            <div class="hero-title">
+                Contrôle des ratios<br>émetteurs OPCVM
+            </div>
+            
+            <div class="hero-subtitle">
+                CFG Bank • Contrôle Interne • By Thierno Ibrahima Diallo
+                <br>
+                CDVM - Circulaire n°01-09 | Article 6
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    # Bouton centré pour entrer dans l'application
-    col1, col2, col3 = st.columns([2, 2, 2])
+    col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🔓 Application Interne", key="enter_app", use_container_width=True):
+        if st.button("🚀 Accéder à l'Application", key="enter_app", use_container_width=True):
             st.session_state.app_started = True
             st.rerun()
     
-    # Info en bas
-    st.markdown("""
-    <div style="position: fixed; bottom: 20px; right: 20px; color: #666; font-size: 0.9rem;">
-        <span style="cursor: pointer;">⚙️ Manage app</span>
-    </div>
-    """, unsafe_allow_html=True)
-    
     st.stop()
 
-# APPLICATION PRINCIPALE (après le clic)
-# Container principal
+# =============================================================================
+# APPLICATION PRINCIPALE
+# =============================================================================
+
 st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
-# En-tête élégant
+# En-tête
 st.markdown("""
-<div class="elegant-header">
-    <h1>📊 Contrôle des ratios émetteurs OPCVM</h1>
-    <div class="subtitle">CFG Bank • Contrôle Interne • By Thierno Ibrahima Diallo</div>
-    <div class="subtitle" style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">CDVM - Circulaire n°01-09 | Article 6</div>
+<div class="app-header">
+    <h1>🏦 Contrôle des Ratios Émetteurs OPCVM</h1>
+    <div class="subtitle">
+        CFG Bank • Contrôle Interne • By Thierno Ibrahima Diallo
+        <span class="badge-red">CDVM n°01-09</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 # =============================================================================
-# SIDEBAR - PARAMÈTRES
+# SIDEBAR
 # =============================================================================
 
 with st.sidebar:
-    # Bouton retour à l'accueil
     st.markdown("### 🏠 Navigation")
-    if st.button("← Retour à l'accueil", use_container_width=True):
+    if st.button("← Retour à l'accueil", use_container_width=True, type="secondary"):
         st.session_state.app_started = False
         st.rerun()
     
     st.markdown("---")
     
-    st.markdown("### ⚙️ Paramètres de Contrôle")
+    st.markdown("### ⚙️ Paramètres Réglementaires")
     
-    # Plafonds
-    st.markdown("#### 📊 Plafonds Réglementaires")
-    plafond_etat = st.number_input("État (%)", 0, 100, 100, help="Plafond pour les émetteurs publics") / 100
-    plafond_action = st.number_input("Actions éligibles 15% (%)", 0, 100, 15, help="Plafond pour actions cotées éligibles") / 100
-    plafond_std = st.number_input("Plafond standard (%)", 0, 100, 10, help="Plafond standard pour émetteurs privés") / 100
+    st.markdown("#### 📊 Plafonds")
+    plafond_etat = st.number_input("État (%)", 0, 100, 100, help="Plafond émetteurs publics") / 100
+    plafond_action = st.number_input("Actions éligibles (%)", 0, 100, 15, help="Actions cotées éligibles") / 100
+    plafond_std = st.number_input("Standard (%)", 0, 100, 10, help="Plafond standard") / 100
     
     st.markdown("---")
     
-    # Actions éligibles
     st.markdown("#### 📈 Actions Éligibles 15%")
-    actions_15 = st.text_area("Liste des actions", "ATW, IAM, BCP, BOA", help="Séparer par des virgules")
+    actions_15 = st.text_area("Liste", "ATW, IAM, BCP, BOA", help="Séparer par virgules")
     actions_list = [a.strip() for a in actions_15.split(',') if a.strip()]
     
     st.markdown("---")
     
-    # Seuil 45%
-    st.markdown("#### 🎯 Règle des 45%")
-    seuil_45 = st.number_input("Seuil règle 45% (%)", 0, 100, 45, help="Concentration maximale >10%") / 100
+    st.markdown("#### 🎯 Règle 45%")
+    seuil_45 = st.number_input("Seuil (%)", 0, 100, 45, help="Concentration max >10%") / 100
     
     st.markdown("---")
     
-    # Table émetteurs
-    st.markdown("#### 📋 Table des Émetteurs")
-    issuer_file = st.file_uploader("Fichier CSV (optionnel)", type=['csv'], help="Remplace la table par défaut")
+    st.markdown("#### 📋 Table Émetteurs")
+    issuer_file = st.file_uploader("CSV (optionnel)", type=['csv'])
     issuer_table = pd.read_csv(issuer_file) if issuer_file else create_default_issuer_table()
     
     st.markdown("---")
     
-    # Date du rapport
-    st.markdown("#### 📅 Date du Contrôle")
-    control_date = st.date_input("Date", datetime.now())
+    st.markdown("#### 📅 Date")
+    control_date = st.date_input("Date du contrôle", datetime.now())
     
     st.markdown("---")
     
-    # Bouton calcul
-    calculate = st.button("🚀 LANCER LE CONTRÔLE", type="primary", use_container_width=True)
+    calculate = st.button("🚀 LANCER L'ANALYSE", type="primary", use_container_width=True)
 
 # =============================================================================
-# CHARGEMENT DU FICHIER
+# CHARGEMENT FICHIER
 # =============================================================================
 
-st.markdown('<div class="section-title">📂 Chargement des Données</div>', unsafe_allow_html=True)
-st.markdown("")
+st.markdown('<div class="section-header"><h2><span class="section-icon">📂</span>Chargement des Données</h2></div>', unsafe_allow_html=True)
 
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([3, 1])
 
 with col1:
     uploaded_file = st.file_uploader(
-        "Sélectionnez votre fichier FOND.xlsx", 
+        "Sélectionnez votre fichier Excel (FOND.xlsx)", 
         type=['xlsx'],
         help="Format: Excel avec onglets par fonds"
     )
 
-# =============================================================================
-# EXÉCUTION PRINCIPALE
-# =============================================================================
-
 if uploaded_file:
-    with st.spinner("⏳ Chargement des données en cours..."):
+    with st.spinner("⏳ Chargement en cours..."):
         portfolio, actif_net_dict = load_portfolio(uploaded_file)
         
         if portfolio is not None and actif_net_dict:
             
-            # Afficher les fonds détectés
             with col2:
-                st.markdown("##### 💼 Fonds Chargés")
-                st.success(f"{len(actif_net_dict)} fonds détectés")
+                st.markdown("##### 📊 Statut")
+                st.success(f"✓ {len(actif_net_dict)} fonds")
+            
+            st.markdown("")
+            st.markdown('<div class="section-header"><h2><span class="section-icon">💼</span>Portfolio Chargé</h2></div>', unsafe_allow_html=True)
             
             # Cartes des fonds
-            st.markdown("")
-            st.markdown('<div class="section-title">💼 Portfolio Global</div>', unsafe_allow_html=True)
-            st.markdown("")
-            
             cols = st.columns(len(actif_net_dict))
             for i, (fonds, actif) in enumerate(actif_net_dict.items()):
                 with cols[i]:
                     st.markdown(f"""
-                    <div class="fund-metric">
+                    <div class="fund-card">
                         <div class="fund-name">{fonds}</div>
                         <div class="fund-value">{actif:,.0f} MAD</div>
                     </div>
                     """.replace(',', ' '), unsafe_allow_html=True)
             
             st.markdown("")
-            st.success(f"✅ {len(portfolio):,} lignes de positions chargées avec succès".replace(',', ' '))
+            st.success(f"✅ **{len(portfolio):,} positions** chargées avec succès".replace(',', ' '))
             
-            # Aperçu des données
-            with st.expander("👁️ Aperçu des données brutes (10 premières lignes)"):
+            with st.expander("👁️ Aperçu des données (10 premières lignes)"):
                 st.dataframe(portfolio.head(10), use_container_width=True)
             
             st.markdown("---")
             
             # CALCUL
             if calculate:
-                with st.spinner("🔍 Analyse en cours... Calcul des ratios et vérifications réglementaires"):
+                with st.spinner("🔍 Analyse réglementaire en cours..."):
                     
-                    # Étape 1: Identifier les émetteurs
                     portfolio = add_issuers(portfolio, issuer_table)
                     
-                    # Étape 2: Paramètres
                     params = {
                         'plafond_etat': plafond_etat,
                         'plafond_action_eligible': plafond_action,
@@ -868,67 +933,58 @@ if uploaded_file:
                         'actions_eligibles_15pct': actions_list
                     }
                     
-                    # Étape 3: Calcul des ratios
                     ratios_df = calculate_issuer_ratios(portfolio, actif_net_dict, params)
-                    
-                    # Étape 4: Règle 45%
                     rule_45_df = check_45_percent_rule(ratios_df, portfolio, actif_net_dict, seuil_45)
                     
-                    # VÉRIFICATION CRITIQUE
                     if len(ratios_df) == 0:
-                        st.error("❌ Aucun ratio calculé - Vérifiez les données")
+                        st.error("❌ Aucun ratio calculé")
                         st.stop()
                     
                     if 'Fonds' not in ratios_df.columns:
-                        st.error("❌ Erreur: Colonne 'Fonds' manquante")
-                        st.write("Colonnes disponibles:", ratios_df.columns.tolist())
+                        st.error("❌ Erreur structure")
                         st.stop()
                     
-                    # -----------------------------------------------------------------
-                    # INDICATEURS CLÉS
-                    # -----------------------------------------------------------------
-                    
+                    # INDICATEURS
                     total_conformes = len(ratios_df[ratios_df['Conformite'] == '✅'])
                     total_non_conformes = len(ratios_df[ratios_df['Conformite'] == '❌'])
                     taux_conformite = total_conformes / len(ratios_df) * 100 if len(ratios_df) > 0 else 0
                     
-                    st.markdown('<div class="section-title">📊 Tableau de Bord</div>', unsafe_allow_html=True)
-                    st.markdown("")
+                    st.markdown('<div class="section-header"><h2><span class="section-icon">📊</span>Tableau de Bord</h2></div>', unsafe_allow_html=True)
                     
                     kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
                     
                     with kpi1:
                         st.markdown(f"""
-                        <div class="modern-metric-card">
+                        <div class="metric-card">
                             <h4>Total Ratios</h4>
                             <div class="value">{len(ratios_df)}</div>
-                            <div class="subvalue">Contrôles effectués</div>
+                            <div class="subvalue">Contrôles</div>
                         </div>
                         """, unsafe_allow_html=True)
                     
                     with kpi2:
                         st.markdown(f"""
-                        <div class="modern-metric-card metric-success">
+                        <div class="metric-card metric-success">
                             <h4>✓ Conformes</h4>
                             <div class="value">{total_conformes}</div>
-                            <div class="subvalue">{taux_conformite:.1f}% du total</div>
+                            <div class="subvalue">{taux_conformite:.1f}%</div>
                         </div>
                         """, unsafe_allow_html=True)
                     
                     with kpi3:
                         st.markdown(f"""
-                        <div class="modern-metric-card metric-danger">
-                            <h4>✗ Non-conformes</h4>
+                        <div class="metric-card metric-danger">
+                            <h4>✗ Alertes</h4>
                             <div class="value">{total_non_conformes}</div>
-                            <div class="subvalue">Alertes actives</div>
+                            <div class="subvalue">Non-conformes</div>
                         </div>
                         """, unsafe_allow_html=True)
                     
                     with kpi4:
                         nb_etat = len(ratios_df[ratios_df['Emetteur'] == 'État marocain'])
                         st.markdown(f"""
-                        <div class="modern-metric-card metric-info">
-                            <h4>🏛️ Secteur Public</h4>
+                        <div class="metric-card metric-info">
+                            <h4>🏛️ Public</h4>
                             <div class="value">{nb_etat}</div>
                             <div class="subvalue">Positions État</div>
                         </div>
@@ -937,8 +993,8 @@ if uploaded_file:
                     with kpi5:
                         nb_prive = len(ratios_df[ratios_df['Type'] == 'privé'])
                         st.markdown(f"""
-                        <div class="modern-metric-card metric-info">
-                            <h4>🏢 Secteur Privé</h4>
+                        <div class="metric-card metric-warning">
+                            <h4>🏢 Privé</h4>
                             <div class="value">{nb_prive}</div>
                             <div class="subvalue">Positions privées</div>
                         </div>
@@ -947,20 +1003,16 @@ if uploaded_file:
                     st.markdown("")
                     st.markdown("---")
                     
-                    # -----------------------------------------------------------------
                     # ONGLETS
-                    # -----------------------------------------------------------------
-                    
                     tab1, tab2, tab3, tab4 = st.tabs([
-                        "📊 Vue d'Ensemble", 
-                        "⚠️ Alertes & Non-conformités", 
-                        "🎯 Règle des 45%",
-                        "📤 Export & Rapports"
+                        "📊 Vue Complète", 
+                        "⚠️ Non-Conformités", 
+                        "🎯 Règle 45%",
+                        "📤 Export"
                     ])
                     
                     with tab1:
-                        st.markdown('<div class="section-title">📋 Ratios Émetteurs par Fonds</div>', unsafe_allow_html=True)
-                        st.markdown("")
+                        st.markdown('<div class="section-header"><h2>Ratios par Émetteur</h2></div>', unsafe_allow_html=True)
                         
                         display_cols = ['Fonds', 'Emetteur', 'Montant_MAD', 'Ratio_%', 
                                        'Plafond_%', 'Conformite', 'Ecart_%']
@@ -973,116 +1025,96 @@ if uploaded_file:
                         
                         st.dataframe(df_show, use_container_width=True, height=500)
                         
-                        # Graphique de répartition
+                        # Graphique
                         st.markdown("")
-                        st.markdown("##### 📈 Répartition des Conformités")
+                        st.markdown("##### 📈 Répartition")
                         
                         conf_counts = ratios_df['Conformite'].value_counts()
                         fig = go.Figure(data=[go.Pie(
-                            labels=['Conformes', 'Non-conformes'],
+                            labels=['Conformes ✓', 'Non-conformes ✗'],
                             values=[conf_counts.get('✅', 0), conf_counts.get('❌', 0)],
-                            hole=.4,
-                            marker_colors=['#38ef7d', '#ff6a00']
+                            hole=.5,
+                            marker_colors=['#10b981', '#ef4444'],
+                            textfont_size=16
                         )])
                         fig.update_layout(
                             height=400,
                             showlegend=True,
                             paper_bgcolor='rgba(0,0,0,0)',
-                            plot_bgcolor='rgba(0,0,0,0)'
+                            plot_bgcolor='rgba(0,0,0,0)',
+                            font=dict(family="Poppins", size=14)
                         )
                         st.plotly_chart(fig, use_container_width=True)
                     
                     with tab2:
-                        st.markdown('<div class="section-title">⚠️ Non-conformités Détectées</div>', unsafe_allow_html=True)
-                        st.markdown("")
+                        st.markdown('<div class="section-header"><h2>Alertes Réglementaires</h2></div>', unsafe_allow_html=True)
                         
                         non_conformes = ratios_df[ratios_df['Conformite'] == '❌']
                         
                         if len(non_conformes) > 0:
-                            st.error(f"🚨 {len(non_conformes)} non-conformité(s) réglementaire(s) détectée(s)")
+                            st.error(f"🚨 **{len(non_conformes)} non-conformité(s)** détectée(s)")
                             
-                            # Tableau des alertes
                             alert_cols = ['Fonds', 'Emetteur', 'Ratio_%', 'Plafond_%', 'Ecart_%']
                             df_alert = non_conformes[alert_cols].copy()
                             
-                            st.dataframe(
-                                df_alert.style.apply(
-                                    lambda x: ['background-color: #ffe6e6' for i in x],
-                                    axis=1
-                                ),
-                                use_container_width=True
-                            )
+                            st.dataframe(df_alert, use_container_width=True)
                             
-                            # Détails par émetteur
                             st.markdown("")
-                            st.markdown("##### 📊 Analyse des Dépassements")
+                            st.markdown("##### 📊 Détails des Dépassements")
                             
                             for _, row in non_conformes.iterrows():
-                                with st.expander(f"🔴 {row['Fonds']} - {row['Emetteur']} (Écart: {row['Ecart_%']:.2f}%)"):
+                                with st.expander(f"🔴 {row['Fonds']} - {row['Emetteur']} | Écart: {row['Ecart_%']:.2f}%"):
                                     col1, col2, col3 = st.columns(3)
                                     with col1:
                                         st.metric("Montant", f"{row['Montant_MAD']:,.0f} MAD".replace(',', ' '))
                                     with col2:
-                                        st.metric("Ratio Actuel", row['Ratio_%'])
+                                        st.metric("Ratio", row['Ratio_%'])
                                     with col3:
                                         st.metric("Plafond", row['Plafond_%'])
                         else:
-                            st.success("✅ Aucune non-conformité détectée - Tous les ratios respectent les limites réglementaires")
+                            st.success("✅ **Conformité totale** - Tous les ratios respectent les limites CDVM")
                             st.balloons()
                     
                     with tab3:
-                        st.markdown('<div class="section-title">🎯 Règle de Concentration des 45%</div>', unsafe_allow_html=True)
-                        st.info("📖 **Règle**: La somme des émetteurs d'actions dont le ratio individuel dépasse 10% ne peut excéder 45% de l'actif net total du fonds.")
-                        st.markdown("")
+                        st.markdown('<div class="section-header"><h2>Règle de Concentration 45%</h2></div>', unsafe_allow_html=True)
+                        st.info("📖 **Règle CDVM**: La somme des émetteurs >10% ne peut dépasser 45% de l'actif net")
                         
                         if len(rule_45_df) > 0:
-                            # Tableau de la règle 45%
-                            st.dataframe(
-                                rule_45_df.style.apply(
-                                    lambda row: ['background-color: #e6ffe6' if row['Conformite'] == '✅' 
-                                                 else 'background-color: #ffe6e6' for _ in row],
-                                    axis=1
-                                ),
-                                use_container_width=True
-                            )
+                            st.dataframe(rule_45_df, use_container_width=True)
                             
-                            # Résumé
                             st.markdown("")
                             conformes_45 = len(rule_45_df[rule_45_df['Conformite'] == '✅'])
                             non_conformes_45 = len(rule_45_df[rule_45_df['Conformite'] == '❌'])
                             
                             col1, col2 = st.columns(2)
                             with col1:
-                                st.metric("✅ Fonds Conformes", conformes_45)
+                                st.metric("✅ Conformes", conformes_45)
                             with col2:
-                                st.metric("❌ Fonds Non-conformes", non_conformes_45)
+                                st.metric("❌ Non-conformes", non_conformes_45)
                         else:
-                            st.warning("⚠️ Aucune donnée disponible pour l'analyse de la règle des 45%")
+                            st.warning("⚠️ Aucune donnée")
                     
                     with tab4:
-                        st.markdown('<div class="section-title">📤 Export des Résultats</div>', unsafe_allow_html=True)
-                        st.markdown("")
+                        st.markdown('<div class="section-header"><h2>Export & Rapports</h2></div>', unsafe_allow_html=True)
                         
-                        # Préparer l'export
                         export_dict = {
-                            'Ratios_Complet': ratios_df,
-                            'Regle_45pct': rule_45_df
+                            'Ratios': ratios_df,
+                            'Regle_45': rule_45_df
                         }
                         
                         if len(non_conformes) > 0:
-                            export_dict['Non_Conformites'] = non_conformes
+                            export_dict['Alertes'] = non_conformes
                         
-                        # Statistiques récapitulatives
                         summary_data = {
                             'Indicateur': [
                                 'Date du contrôle',
-                                'Nombre total de ratios',
-                                'Ratios conformes',
-                                'Ratios non-conformes',
-                                'Taux de conformité',
+                                'Ratios analysés',
+                                'Conformes',
+                                'Non-conformes',
+                                'Taux conformité',
                                 'Positions État',
                                 'Positions privées',
-                                'Fonds analysés'
+                                'Fonds'
                             ],
                             'Valeur': [
                                 control_date.strftime('%d/%m/%Y'),
@@ -1097,7 +1129,6 @@ if uploaded_file:
                         }
                         export_dict['Synthese'] = pd.DataFrame(summary_data)
                         
-                        # Export Excel
                         output = BytesIO()
                         with pd.ExcelWriter(output, engine='openpyxl') as writer:
                             for sheet_name, df in export_dict.items():
@@ -1109,101 +1140,113 @@ if uploaded_file:
                         
                         with col1:
                             st.download_button(
-                                label="📥 Télécharger Rapport Complet (Excel)",
+                                label="📥 Télécharger Rapport Excel",
                                 data=output,
-                                file_name=f"controle_emetteurs_{control_date.strftime('%Y%m%d')}.xlsx",
+                                file_name=f"controle_opcvm_{control_date.strftime('%Y%m%d')}.xlsx",
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                 use_container_width=True
                             )
                         
                         with col2:
-                            # Export CSV des non-conformités
                             if len(non_conformes) > 0:
                                 csv = non_conformes.to_csv(index=False)
                                 st.download_button(
-                                    label="📥 Télécharger Alertes (CSV)",
+                                    label="📥 Télécharger Alertes CSV",
                                     data=csv,
                                     file_name=f"alertes_{control_date.strftime('%Y%m%d')}.csv",
                                     mime="text/csv",
                                     use_container_width=True
                                 )
                         
-                        # Aperçu du contenu exporté
                         st.markdown("")
-                        st.markdown("##### 📋 Contenu du Rapport")
                         st.info(f"""
-                        Le rapport Excel contient **{len(export_dict)} onglets**:
-                        - 📊 **Ratios_Complet**: Tous les ratios calculés ({len(ratios_df)} lignes)
-                        - 🎯 **Regle_45pct**: Analyse de concentration ({len(rule_45_df)} lignes)
-                        {f"- ⚠️ **Non_Conformites**: Alertes réglementaires ({len(non_conformes)} lignes)" if len(non_conformes) > 0 else ""}
-                        - 📈 **Synthese**: Indicateurs clés de performance
+                        **📋 Contenu du rapport**: {len(export_dict)} onglets
+                        - Ratios_Complet ({len(ratios_df)} lignes)
+                        - Regle_45 ({len(rule_45_df)} lignes)
+                        {f"- Alertes ({len(non_conformes)} lignes)" if len(non_conformes) > 0 else ""}
+                        - Synthèse
                         """)
                     
-                    # -----------------------------------------------------------------
-                    # RAPPORT DE SYNTHÈSE
-                    # -----------------------------------------------------------------
-                    
+                    # SYNTHÈSE
                     st.markdown("---")
-                    st.markdown('<div class="section-title">📋 Synthèse du Contrôle</div>', unsafe_allow_html=True)
-                    st.markdown("")
+                    st.markdown('<div class="section-header"><h2><span class="section-icon">📋</span>Rapport de Synthèse</h2></div>', unsafe_allow_html=True)
                     
                     col1, col2 = st.columns(2)
                     
                     with col1:
                         st.markdown("##### ✅ Points Positifs")
-                        st.markdown(f"""
-                        - ✓ **{total_conformes} ratios conformes** sur {len(ratios_df)} contrôles
-                        - ✓ **Taux de conformité**: {taux_conformite:.1f}%
-                        - ✓ **{len(rule_45_df[rule_45_df['Conformite'] == '✅'])} fonds** respectent la règle des 45%
-                        - ✓ **{len(actif_net_dict)} fonds** analysés avec succès
+                        st.success(f"""
+                        - ✓ **{total_conformes}** ratios conformes sur **{len(ratios_df)}**
+                        - ✓ Taux de conformité: **{taux_conformite:.1f}%**
+                        - ✓ **{len(rule_45_df[rule_45_df['Conformite'] == '✅'])}** fonds OK règle 45%
+                        - ✓ **{len(actif_net_dict)}** fonds analysés
                         """)
                     
                     with col2:
                         if total_non_conformes > 0:
-                            st.markdown("##### ⚠️ Points d'Attention")
-                            emetteurs_alert = ', '.join(non_conformes['Emetteur'].unique()[:5])
-                            st.markdown(f"""
-                            - ⚠ **{total_non_conformes} non-conformités** détectées
-                            - ⚠ **Émetteurs concernés**: {emetteurs_alert}
-                            - ⚠ **Action requise**: Régularisation nécessaire
-                            - ⚠ **Suivi**: Monitoring renforcé recommandé
+                            st.markdown("##### ⚠️ Actions Requises")
+                            emetteurs = ', '.join(non_conformes['Emetteur'].unique()[:5])
+                            st.warning(f"""
+                            - ⚠ **{total_non_conformes}** dépassements
+                            - ⚠ Émetteurs: **{emetteurs}**
+                            - ⚠ Régularisation nécessaire
+                            - ⚠ Suivi renforcé
                             """)
                         else:
                             st.markdown("##### ✅ Conformité Totale")
-                            st.markdown("""
-                            - ✓ Aucun dépassement réglementaire
-                            - ✓ Portfolio en conformité CDVM
-                            - ✓ Tous les seuils respectés
-                            - ✓ Gestion conforme aux normes
+                            st.success("""
+                            - ✓ Aucun dépassement
+                            - ✓ Conformité CDVM 100%
+                            - ✓ Portfolio régulier
+                            - ✓ Seuils respectés
                             """)
                     
         else:
-            st.error("❌ Échec du chargement des données - Vérifiez le format du fichier Excel")
-            st.info("ℹ️ Le fichier doit contenir des onglets nommés: Action, Diversifie, OMLT, OCT, Monetaire")
+            st.error("❌ Échec du chargement")
 else:
-    st.info("👈 **Pour commencer**: Chargez votre fichier FOND.xlsx dans la zone ci-dessus")
+    st.info("👆 **Pour commencer**: Chargez votre fichier Excel FOND.xlsx")
     
-    # Instructions
-    with st.expander("📖 Guide d'utilisation"):
+    with st.expander("📖 Guide d'Utilisation"):
         st.markdown("""
-        ### Mode d'emploi
+        ### 🎯 Mode d'Emploi
         
-        1. **Chargement**: Uploadez votre fichier Excel FOND.xlsx
-        2. **Configuration**: Ajustez les paramètres dans la barre latérale (optionnel)
-        3. **Analyse**: Cliquez sur "🚀 LANCER LE CONTRÔLE"
-        4. **Résultats**: Consultez les tableaux de bord et alertes
-        5. **Export**: Téléchargez le rapport complet
+        **1. Chargement**
+        - Uploadez votre fichier FOND.xlsx
+        - Vérifiez les fonds détectés
         
-        ### Format du fichier attendu
-        - Format: Excel (.xlsx)
-        - Onglets: Un par fonds (Action, Diversifie, OMLT, OCT, Monetaire)
-        - Colonnes: Code ISIN, Type, Description, Quantité, Prix, Valorisation...
+        **2. Configuration** (Optionnel)
+        - Ajustez les plafonds dans la sidebar
+        - Définissez les actions éligibles
+        - Configurez la règle 45%
         
-        ### Contrôles effectués
-        - ✓ Ratio par émetteur vs plafonds CDVM
-        - ✓ Règle de concentration des 45%
-        - ✓ Distinction secteur public/privé
+        **3. Analyse**
+        - Cliquez sur "🚀 LANCER L'ANALYSE"
+        - Consultez le tableau de bord
+        
+        **4. Export**
+        - Téléchargez le rapport Excel complet
+        - Exportez les alertes en CSV
+        
+        ---
+        
+        ### 📋 Format Attendu
+        
+        **Structure Excel**:
+        - Onglets par fonds (Action, Diversifie, OMLT, OCT, Monetaire)
+        - Colonnes: ISIN, Type, Description, Quantité, Prix, Valorisation
+        
+        **Contrôles CDVM**:
+        - ✓ Ratio par émetteur ≤ plafonds
+        - ✓ Règle concentration 45%
+        - ✓ Distinction public/privé
         - ✓ Actions éligibles 15%
+        
+        ---
+        
+        ### 📞 Support
+        
+        En cas de problème, contactez:
+        **Thierno Ibrahima Diallo** - Contrôle Interne CFG Bank
         """)
 
 st.markdown('</div>', unsafe_allow_html=True)
@@ -1211,8 +1254,9 @@ st.markdown('</div>', unsafe_allow_html=True)
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; color: #999; font-size: 0.85rem; padding: 1rem 0;">
-    <p>📊 Application de Contrôle Réglementaire OPCVM | Version 2.0</p>
-    <p>CFG Bank - Contrôle Interne | Conforme CDVM Circulaire n°01-09</p>
+<div style="text-align: center; color: #9ca3af; font-size: 0.9rem; padding: 2rem 0 1rem 0;">
+    <p style="margin: 0.5rem 0;"><strong>📊 Application de Contrôle Réglementaire OPCVM</strong></p>
+    <p style="margin: 0.5rem 0;">Version 3.0 Premium • CFG Bank - Contrôle Interne</p>
+    <p style="margin: 0.5rem 0;">Conforme CDVM Circulaire n°01-09 | Développé par Thierno Ibrahima Diallo</p>
 </div>
 """, unsafe_allow_html=True)
